@@ -816,6 +816,22 @@
       else startOnline('');
     },
   });
+  const GUIDE = [
+    { title: 'HIDE YOUR SHIPS', text: 'Tap a ship, then tap the sea to put it there. Or tap MIX UP to do it for you.',
+      pic: A.mini('sea', ['.....', '.sss.', '.....', 's....', 's....']) },
+    { title: 'TAKE TURNS TO FIRE', text: 'Tap a square on the enemy sea to fire a shot at it.',
+      pic: A.mini('sea', ['.....', '.....', '..t..', '.....', '.....']) },
+    { title: 'RED MEANS HIT!', text: 'You hit a ship! Fire next to that square to find the rest of it.',
+      pic: A.mini('sea', ['.....', '.ox..', '.....', '...o.', '.....']) },
+    { title: 'GREEN MEANS MISS', text: 'Only water there. Try somewhere else next time.',
+      pic: A.mini('sea', ['o....', '..o..', '....o', '.o...', '...o.']) },
+    { title: 'SINK EVERY SHIP', text: 'Hit every square of every ship. The first to sink the whole fleet wins!',
+      pic: A.sprite('trophy') },
+    { title: 'ONE DEVICE? NO PEEKING!', text: 'When it says PASS, hand it over and look away while your friend plays.',
+      pic: `${A.sprite('kidBlue')}<span class="arrow">&gt;</span>${A.sprite('kidPink')}` },
+    { title: 'QUICK OR BIG?', text: 'QUICK is a small sea with 4 ships for a short game. BIG is the full sea with 5 ships.',
+      pic: `<div class="small-minis">${A.mini('sea', ['ss..', '....', '.s..', '.s..'])}${A.mini('sea', ['s.....', 's..ss.', '......', '.sss..', '......', '...ss.'])}</div>` },
+  ];
   A.initHeader();
   A.setGuard(() => S.phase === 'place' || S.phase === 'connecting' || (S.phase === 'battle' && !S.over));
 
@@ -828,6 +844,8 @@
   });
 
   show('title');
+  $('#how-btn').addEventListener('click', () => { Sound.click(); A.guide(GUIDE); });
   const room = A.roomFromUrl();
   if (room) startOnline(room);
+  else A.guideOnce('bs', GUIDE);
 })();

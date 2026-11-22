@@ -297,8 +297,20 @@
       else startOnline('');
     },
   });
+  const GUIDE = [
+    { title: 'TAP TWO CARDS', text: 'They turn over so you can see the pictures.',
+      pic: A.miniCards(['duck', '?', 'cat', '?']) },
+    { title: 'SAME PICTURE? KEEP THEM!', text: 'You found a pair! You keep it and have another go.',
+      pic: A.miniCards(['duck*', '?', 'duck*', '?']) },
+    { title: 'DIFFERENT? THEY TURN BACK', text: 'Try hard to remember where each picture was!',
+      pic: `${A.miniCards(['cat', 'duck'])}<span class="arrow">&gt;</span>${A.miniCards(['?', '?'])}` },
+    { title: 'FIND ALL THE PAIRS', text: 'On your own, find them in as few goes as you can. With a friend, whoever finds the most pairs wins!',
+      pic: A.sprite('trophy') },
+  ];
   A.initHeader();
   A.setGuard(() => (S.phase === 'game' && !S.over && (S.moves > 0 || S.mode === 'online')) || S.phase === 'connecting');
+  $('#how-btn').addEventListener('click', () => { Sound.click(); A.guide(GUIDE); });
   const room = A.roomFromUrl();
   if (room) startOnline(room);
+  else A.guideOnce('mem', GUIDE);
 })();

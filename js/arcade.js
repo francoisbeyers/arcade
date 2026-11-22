@@ -162,6 +162,7 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
   }
   function showOverlay({ title, cls = '', body = '', actions = [] }) {
+    $('#overlay .modal').classList.remove('guide');
     const h = $('#ov-title');
     h.textContent = title;
     h.className = cls;
@@ -442,6 +443,69 @@
     });
   }
 
+  /* ---------- picture guides ("how to play") ---------- */
+  // Small pictures built from letters, e.g. mini('sea', ['..s', '.x.', 'o..']).
+  function mini(kind, rows) {
+    let html = `<div class="mini mini-${kind}" style="--c:${rows[0].length}">`;
+    for (const row of rows) for (const ch of row) html += `<i class="m-${ch === '.' ? 'e' : ch}"></i>`;
+    return html + '</div>';
+  }
+  // Memory-style cards: '?' is face down, a sprite name is face up, a trailing '*' highlights it.
+  function miniCards(list) {
+    return `<div class="mini-cards">${list.map((c) => {
+      const hi = c.endsWith('*');
+      const name = c.replace('*', '');
+      return name === '?' ? '<i class="mc-back">?</i>' : `<i class="mc-face${hi ? ' hi' : ''}">${sprite(name)}</i>`;
+    }).join('')}</div>`;
+  }
+  function speak(text) {
+    try {
+      const s = window.speechSynthesis;
+      if (!s) return;
+      s.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = s.getVoices().find((x) => /en[-_]GB/i.test(x.lang));
+      if (v) u.voice = v;
+      u.lang = 'en-GB';
+      u.rate = 0.9;
+      s.speak(u);
+    } catch (e) { /* speech not available */ }
+  }
+  function stopSpeaking() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+  const canSpeak = 'speechSynthesis' in window;
+
+  // steps: [{ title, text, pic }]. Text is written normally and shown in capitals.
+  function guide(steps, onDone) {
+    let i = 0;
+    const close = () => { stopSpeaking(); hideOverlay(); if (onDone) onDone(); };
+    const render = () => {
+      stopSpeaking();
+      const st = steps[i];
+      const last = i === steps.length - 1;
+      showOverlay({
+        title: st.title,
+        body: `<div class="guide-pic">${st.pic || ''}</div>
+          <p class="guide-text">${esc(st.text)}</p>
+          ${canSpeak ? '<button type="button" class="btn btn-small btn-purple guide-read" data-read>READ IT TO ME</button>' : ''}
+          <div class="guide-dots" aria-label="Step ${i + 1} of ${steps.length}">${steps.map((_, k) => `<span class="${k === i ? 'on' : ''}"></span>`).join('')}</div>`,
+        actions: [
+          i > 0 ? { label: 'BACK', onClick: () => { i--; render(); } } : { label: 'SKIP', onClick: close },
+          last ? { label: "LET'S PLAY!", primary: true, onClick: close } : { label: 'NEXT', primary: true, onClick: () => { i++; render(); } },
+        ],
+      });
+      $('#overlay .modal').classList.add('guide');
+      const read = $('#ov-body [data-read]');
+      if (read) read.addEventListener('click', () => speak(`${st.title}. ${st.text}`));
+    };
+    render();
+  }
+  // Show the guide automatically the first time a game is opened on this device.
+  function guideOnce(key, steps) {
+    if (store.get(key + '-guide-seen', '0') === '1') return;
+    store.set(key + '-guide-seen', '1');
+    guide(steps);
+  }
+
   /* ---------- header: sound toggle + quit guard ---------- */
   let guard = () => false;
   let leaving = false;
@@ -477,7 +541,7 @@
     $, rand, esc, shuffle, store, Sound, PLAYERS, CPU, CARD_SPRITES, sprite,
     toast, showOverlay, hideOverlay, overlayOpen, confirmBox, handover, choiceRow, modeMenu,
     keepAwake, releaseAwake, Net, online, roomFromUrl, clearRoomFromUrl, connectionLost,
-    setGuard, initHeader,
+    setGuard, initHeader, mini, miniCards, guide, guideOnce,
     setQuiet(v) { quiet = !!v; },
   };
 })();

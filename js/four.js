@@ -326,8 +326,22 @@
       else startOnline('');
     },
   });
+  const GUIDE = [
+    { title: 'DROP A COUNTER', text: 'Tap a column and your counter drops all the way down.',
+      pic: A.mini('four', ['...a...', '.......', '.......', '.......', '.......', '...b...']) },
+    { title: 'TAKE TURNS', text: 'BLUE goes, then PINK, then BLUE again.',
+      pic: A.mini('four', ['.......', '.......', '.......', '...b...', '...p...', '..pbb..']) },
+    { title: 'GET 4 IN A LINE', text: 'Across, up and down, or slanted. Any way counts!',
+      pic: A.mini('four', ['.......', '.......', '.....B.', '....Bp.', '...Bpp.', '..Bpbb.']) },
+    { title: 'BLOCK YOUR FRIEND!', text: 'If they have 3 in a line, drop yours in the gap to stop them.',
+      pic: A.mini('four', ['.......', '.......', '.......', '.......', '.b.b...', '.pppa..']) },
+    { title: 'NO WINNER?', text: "If the board fills up and nobody gets 4, it's a draw. Play again!",
+      pic: A.sprite('four') },
+  ];
   A.initHeader();
   A.setGuard(() => S.phase === 'game' && !S.over);
+  $('#how-btn').addEventListener('click', () => { Sound.click(); A.guide(GUIDE); });
   const room = A.roomFromUrl();
   if (room) startOnline(room);
+  else A.guideOnce('four', GUIDE);
 })();
