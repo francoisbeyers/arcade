@@ -58,6 +58,14 @@
         <input id="code-input" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCDE">
       </label>
       <button id="join-btn" class="btn" type="button">JOIN GAME</button>
+      <div class="or">- OR -</div>
+      <span class="field-label">VS COMPUTER</span>
+      <div class="level-row" role="radiogroup" aria-label="Computer difficulty">
+        <button class="level" type="button" role="radio" data-level="easy">EASY</button>
+        <button class="level" type="button" role="radio" data-level="normal">NORMAL</button>
+        <button class="level" type="button" role="radio" data-level="hard">HARD</button>
+      </div>
+      <button id="cpu-btn" class="btn btn-cpu" type="button">1 PLAYER GAME</button>
       <p id="title-msg" class="msg" role="status"></p>
     </div>
 
@@ -70,6 +78,7 @@
         <li>Take turns firing at enemy waters. <span class="t-red">RED = HIT</span>, <span class="t-green">GREEN = MISS</span>.</li>
         <li>Sink the whole enemy fleet to win the round.</li>
         <li>Keep both screens awake. If a device sleeps, the link can drop.</li>
+        <li>No one to play? Pick a level and tap 1 PLAYER GAME to take on the computer. EASY fires at random, NORMAL hunts down ships it has hit, HARD works out where your ships are most likely to be.</li>
       </ol>
     </details>
   </section>

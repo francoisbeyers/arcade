@@ -8,6 +8,14 @@ A retro 8-bit, two-player Battleships game that runs in the browser. Each player
 - The other player enters the code and taps **JOIN GAME**.
 - The two browsers connect directly to each other over WebRTC using [PeerJS](https://peerjs.com/). PeerJS's free public server is only used to introduce the two devices; the game moves go device to device.
 
+## 1-player mode
+
+Pick a level and tap **1 PLAYER GAME** to play the computer on one device (no connection needed once the page has loaded):
+
+- **Easy:** fires at random (about 95 shots to sink your fleet).
+- **Normal:** fires at random until it hits, then hunts that ship down (about 65 shots).
+- **Hard:** works out where your remaining ships could fit and fires at the likeliest square (about 45 shots).
+
 ## Rules
 
 - 10×10 grid, classic fleet: Carrier (5), Battleship (4), Cruiser (3), Submarine (3), Destroyer (2).

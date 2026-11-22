@@ -235,17 +235,30 @@
   function applyShip(cell, seg) {
     if (seg) cell.classList.add('ship', 'dir-' + seg.dir, seg.end);
   }
-  function randomPlacement() {
-    S.placement = {};
-    for (const s of FLEET) {
-      for (let tries = 0; tries < 1000; tries++) {
-        const dir = Math.random() < 0.5 ? 'h' : 'v';
-        const r = rand(dir === 'v' ? SIZE - s.len + 1 : SIZE);
-        const c = rand(dir === 'h' ? SIZE - s.len + 1 : SIZE);
-        if (canPlace(s.id, r, c, dir)) { S.placement[s.id] = { r, c, dir }; break; }
+  function randomFleet() {
+    for (;;) {
+      const fleet = {};
+      const used = new Set();
+      let ok = true;
+      for (const s of FLEET) {
+        let placed = false;
+        for (let tries = 0; tries < 500 && !placed; tries++) {
+          const dir = Math.random() < 0.5 ? 'h' : 'v';
+          const r = rand(dir === 'v' ? SIZE - s.len + 1 : SIZE);
+          const c = rand(dir === 'h' ? SIZE - s.len + 1 : SIZE);
+          const cells = shipCells(s.len, r, c, dir);
+          if (cells.every(([rr, cc]) => !used.has(idx(rr, cc)))) {
+            cells.forEach(([rr, cc]) => used.add(idx(rr, cc)));
+            fleet[s.id] = { r, c, dir };
+            placed = true;
+          }
+        }
+        if (!placed) { ok = false; break; }
       }
+      if (ok) return fleet;
     }
   }
+  function randomPlacement() { S.placement = randomFleet(); }
   const allPlaced = () => FLEET.every((s) => S.placement[s.id]);
 
   /* ---------- placement screen ---------- */
@@ -255,8 +268,9 @@
     hideOverlay();
     show('place');
     keepAwake();
-    $('#place-vs').textContent = `ROUND ${S.game + 1}  -  VS ${S.oppName}`;
+    $('#place-vs').textContent = `ROUND ${S.game + 1}  -  VS ${S.oppName}${S.vsAI ? ' (' + AI.level.toUpperCase() + ')' : ''}`;
     renderPlace();
+    if (S.vsAI) AI.newRound();
   }
   function selectShip(id) {
     if (S.iReady) return;
@@ -354,6 +368,7 @@
     addLog(S.myTurn ? 'YOU FIRE FIRST. GOOD LUCK!' : `${S.oppName} FIRES FIRST.`);
     Sound.start();
     renderBattle();
+    if (S.vsAI && !S.myTurn) AI.takeTurn(1400);
   }
   function addLog(text) {
     S.log.unshift(text);
@@ -539,7 +554,7 @@
   function renderScores() {
     const me = $('#score-me'), op = $('#score-opp');
     me.innerHTML = scoreHtml('YOU', S.myName || 'PLAYER', S.wins.me, S.myShots.size, countVal(S.myShots, 'hit'), S.enemySunk.size);
-    op.innerHTML = scoreHtml('ENEMY', S.oppName, S.wins.opp, S.oppShots.size, countVal(S.oppShots, 'hit'), S.mySunk.size);
+    op.innerHTML = scoreHtml(S.vsAI ? 'CPU - ' + AI.level.toUpperCase() : 'ENEMY', S.oppName, S.wins.opp, S.oppShots.size, countVal(S.oppShots, 'hit'), S.mySunk.size);
     me.classList.toggle('active', S.phase === 'battle' && !S.over && S.myTurn);
     op.classList.toggle('active', S.phase === 'battle' && !S.over && !S.myTurn);
   }
@@ -564,6 +579,7 @@
 
   /* ---------- networking (PeerJS / WebRTC) ---------- */
   function send(m) {
+    if (S.vsAI) { AI.receive(m); return; }
     if (S.conn && S.conn.open) {
       try { S.conn.send(m); } catch (e) { console.warn('send failed', e); }
     }
@@ -744,6 +760,8 @@
 
   function teardown(resetScores) {
     clearTimeout(S.joinTimer);
+    AI.stop();
+    S.vsAI = false;
     const c = S.conn, p = S.peer;
     S.conn = null;
     S.peer = null;
@@ -787,6 +805,154 @@
     }
   }
 
+  /* ---------- computer opponent ----------
+     Speaks the same messages as a networked player, so the rest of the game
+     doesn't know the difference. Knowledge grid: 0 unknown, 1 miss, 2 hit, 3 sunk. */
+  const AI = {
+    level: ['easy', 'normal', 'hard'].includes(store.get('bs-level', 'normal')) ? store.get('bs-level', 'normal') : 'normal',
+    gen: 0,
+    fleet: {}, layout: [], hitsOn: {}, sunk: new Set(), shotAt: new Set(),
+    know: [], remaining: [],
+
+    stop() { this.gen++; },
+    deliver(m, delay) {
+      const g = this.gen;
+      setTimeout(() => { if (g === this.gen && S.vsAI) onData(m); }, delay);
+    },
+    newRound() {
+      this.gen++;
+      this.fleet = randomFleet();
+      this.layout = shipLayout(this.fleet);
+      this.hitsOn = {};
+      this.sunk = new Set();
+      this.shotAt = new Set();
+      this.know = new Array(SIZE * SIZE).fill(0);
+      this.remaining = FLEET.map((s) => s.len);
+      this.deliver({ type: 'ready' }, 900 + rand(900));
+    },
+    receive(m) {
+      switch (m.type) {
+        case 'shot': this.onPlayerShot(m.r, m.c); break;
+        case 'result': this.onResult(m); break;
+        case 'reveal': this.deliver({ type: 'reveal', placement: this.fleet }, 100); break;
+        case 'rematch': this.deliver({ type: 'rematch' }, 400); break;
+        default: break;
+      }
+    },
+    onPlayerShot(r, c) {
+      const i = idx(r, c);
+      if (!inBounds(r, c) || this.shotAt.has(i)) return;
+      this.shotAt.add(i);
+      const seg = this.layout[i];
+      let sunk = null, cells = null;
+      if (seg) {
+        this.hitsOn[seg.id] = (this.hitsOn[seg.id] || 0) + 1;
+        const s = shipById(seg.id);
+        if (this.hitsOn[seg.id] >= s.len) {
+          this.sunk.add(seg.id);
+          sunk = seg.id;
+          const p = this.fleet[seg.id];
+          cells = shipCells(s.len, p.r, p.c, p.dir);
+        }
+      }
+      const gameOver = this.sunk.size === FLEET.length;
+      this.deliver({ type: 'result', r, c, hit: !!seg, sunk, cells, gameOver }, 350);
+      if (!gameOver) this.takeTurn(350 + 750 + rand(500));
+    },
+    onResult(m) {
+      const i = idx(m.r, m.c);
+      this.know[i] = m.hit ? 2 : 1;
+      if (m.sunk && Array.isArray(m.cells)) {
+        for (const [r, c] of m.cells) this.know[idx(r, c)] = 3;
+        const len = shipById(m.sunk).len;
+        const k = this.remaining.indexOf(len);
+        if (k >= 0) this.remaining.splice(k, 1);
+      }
+    },
+    takeTurn(delay) {
+      const i = this.pickTarget();
+      this.deliver({ type: 'shot', r: Math.floor(i / SIZE), c: i % SIZE }, delay);
+    },
+
+    unknownCells() { const out = []; this.know.forEach((v, i) => { if (v === 0) out.push(i); }); return out; },
+    pickRandom(list) { return list[rand(list.length)]; },
+    neighbours(i) {
+      const r = Math.floor(i / SIZE), c = i % SIZE;
+      return [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(([a, b]) => inBounds(a, b)).map(([a, b]) => idx(a, b));
+    },
+    pickTarget() {
+      const unknown = this.unknownCells();
+      if (this.level === 'easy') return this.pickRandom(unknown);
+      if (this.level === 'hard') { const d = this.densityPick(); if (d != null) return d; }
+      const t = this.targetPick();
+      return t != null ? t : this.pickRandom(unknown);
+    },
+    // NORMAL: once something is hit, follow the line of hits, else try around them.
+    targetPick() {
+      const hits = [];
+      this.know.forEach((v, i) => { if (v === 2) hits.push(i); });
+      if (!hits.length) return null;
+      const lineEnds = [];
+      for (const h of hits) {
+        const r = Math.floor(h / SIZE), c = h % SIZE;
+        for (const [dr, dc] of [[0, 1], [1, 0]]) {
+          const along = (sr, sc) => inBounds(sr, sc) && this.know[idx(sr, sc)] === 2;
+          if (!along(r + dr, c + dc) && !along(r - dr, c - dc)) continue;
+          let a = 1; while (along(r + dr * a, c + dc * a)) a++;
+          let b = 1; while (along(r - dr * b, c - dc * b)) b++;
+          for (const [er, ec] of [[r + dr * a, c + dc * a], [r - dr * b, c - dc * b]]) {
+            if (inBounds(er, ec) && this.know[idx(er, ec)] === 0) lineEnds.push(idx(er, ec));
+          }
+        }
+      }
+      if (lineEnds.length) return this.pickRandom(lineEnds);
+      const around = [];
+      for (const h of hits) for (const n of this.neighbours(h)) if (this.know[n] === 0) around.push(n);
+      return around.length ? this.pickRandom(around) : null;
+    },
+    // HARD: count every way the remaining ships could still fit and fire at the busiest square.
+    densityPick() {
+      const score = new Array(SIZE * SIZE).fill(0);
+      const hasHits = this.know.includes(2);
+      for (const len of this.remaining) {
+        for (const dir of ['h', 'v']) {
+          for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+              const cells = shipCells(len, r, c, dir);
+              if (!cells.every(([a, b]) => inBounds(a, b))) continue;
+              const ids = cells.map(([a, b]) => idx(a, b));
+              if (ids.some((i) => this.know[i] === 1 || this.know[i] === 3)) continue;
+              const nHits = ids.filter((i) => this.know[i] === 2).length;
+              if (hasHits && !nHits) continue;
+              const w = hasHits ? 1 + nHits * 20 : 1;
+              for (const i of ids) if (this.know[i] === 0) score[i] += w;
+            }
+          }
+        }
+      }
+      let best = 0, picks = [];
+      score.forEach((v, i) => {
+        if (this.know[i] !== 0 || v === 0) return;
+        if (v > best) { best = v; picks = [i]; } else if (v === best) picks.push(i);
+      });
+      return picks.length ? this.pickRandom(picks) : null;
+    },
+  };
+
+  function startCPU() {
+    saveName();
+    teardown(true);
+    S.vsAI = true;
+    S.isHost = true; // you fire first in round 1, then it alternates
+    S.oppName = 'COMPUTER';
+    titleMsg('');
+    Sound.join();
+    enterPlacement();
+  }
+  function paintLevels() {
+    for (const b of document.querySelectorAll('.level')) b.setAttribute('aria-checked', String(b.dataset.level === AI.level));
+  }
+
   /* ---------- wiring ---------- */
   function init() {
     buildBoard($('#place-board'), {
@@ -800,6 +966,11 @@
     $('#name-input').value = store.get('bs-name', '');
     $('#host-btn').addEventListener('click', () => { Sound.click(); hostGame(); });
     $('#join-btn').addEventListener('click', () => { Sound.click(); joinGame(); });
+    $('#cpu-btn').addEventListener('click', () => { Sound.click(); startCPU(); });
+    for (const b of document.querySelectorAll('.level')) {
+      b.addEventListener('click', () => { AI.level = b.dataset.level; store.set('bs-level', AI.level); Sound.click(); paintLevels(); });
+    }
+    paintLevels();
     $('#code-input').addEventListener('input', (e) => { e.target.value = cleanCode(e.target.value); });
     $('#code-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') joinGame(); });
     $('#cancel-btn').addEventListener('click', () => { Sound.click(); goTitle(); });
