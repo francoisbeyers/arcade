@@ -2,7 +2,7 @@
 
 Retro 8-bit games for kids, in the browser. No accounts, nothing to install, and it can be added to a phone or tablet home screen so it opens like an app.
 
-Live at https://francoisbeyers.github.io/battleships/
+Live at https://francoisbeyers.github.io/arcade/
 
 ## Games
 
