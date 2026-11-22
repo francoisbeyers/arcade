@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Battleships</title>
+  <meta name="description" content="Retro two-player Battleships. Play against a friend on another device, no sign-up.">
+  <meta name="theme-color" content="#0b0d2e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%232c48d8'/%3E%3Crect x='2' y='8' width='12' height='3' fill='%23b4b4b4'/%3E%3Crect x='6' y='5' width='4' height='3' fill='%23b4b4b4'/%3E%3Crect x='7' y='2' width='1' height='3' fill='%23fcd800'/%3E%3Crect x='3' y='11' width='10' height='1' fill='%235c5c5c'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <span class="logo">BATTLESHIPS</span>
+    <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
+  </header>
+
+  <!-- TITLE -->
+  <section id="screen-title" class="screen">
+    <h1 class="title">BATTLE<br>SHIPS</h1>
+    <svg class="ship-art" viewBox="0 0 64 26" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="29" y="1" width="2" height="6" fill="#e8e8e8"/>
+      <rect x="31" y="1" width="4" height="2" fill="#e8281c"/>
+      <rect x="25" y="6" width="10" height="4" fill="#b4b4b4"/>
+      <rect x="27" y="7" width="2" height="1" fill="#3cbcfc"/>
+      <rect x="31" y="7" width="2" height="1" fill="#3cbcfc"/>
+      <rect x="20" y="10" width="22" height="4" fill="#9c9c9c"/>
+      <rect x="11" y="11" width="7" height="3" fill="#b4b4b4"/>
+      <rect x="6" y="11" width="5" height="1" fill="#5c5c5c"/>
+      <rect x="44" y="11" width="7" height="3" fill="#b4b4b4"/>
+      <rect x="51" y="11" width="5" height="1" fill="#5c5c5c"/>
+      <rect x="2" y="14" width="60" height="2" fill="#e8e8e8"/>
+      <rect x="4" y="16" width="56" height="2" fill="#9c9c9c"/>
+      <rect x="6" y="18" width="52" height="2" fill="#5c5c5c"/>
+      <g class="waves">
+        <rect x="0" y="20" width="64" height="6" fill="#2c48d8"/>
+        <rect x="2" y="20" width="6" height="1" fill="#fcfcfc"/>
+        <rect x="18" y="21" width="8" height="1" fill="#3cbcfc"/>
+        <rect x="34" y="20" width="6" height="1" fill="#fcfcfc"/>
+        <rect x="50" y="21" width="8" height="1" fill="#3cbcfc"/>
+        <rect x="10" y="23" width="6" height="1" fill="#3cbcfc"/>
+        <rect x="42" y="24" width="6" height="1" fill="#3cbcfc"/>
+      </g>
+    </svg>
+    <p class="blink press">PRESS START</p>
+
+    <div class="panel">
+      <label>CAPTAIN NAME
+        <input id="name-input" maxlength="10" autocomplete="off" spellcheck="false" placeholder="PLAYER">
+      </label>
+      <button id="host-btn" class="btn btn-primary" type="button">NEW GAME</button>
+      <div class="or">- OR -</div>
+      <label>ROOM CODE
+        <input id="code-input" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCDE">
+      </label>
+      <button id="join-btn" class="btn" type="button">JOIN GAME</button>
+      <p id="title-msg" class="msg" role="status"></p>
+    </div>
+
+    <details class="panel how">
+      <summary>HOW TO PLAY</summary>
+      <ol>
+        <li>One player taps NEW GAME and shares the room code.</li>
+        <li>On the other device, enter the code and tap JOIN GAME.</li>
+        <li>Place your 5 ships: tap a ship, then tap the grid. ROTATE turns it. Tap a placed ship to move it.</li>
+        <li>Take turns firing at enemy waters. <span class="t-red">RED = HIT</span>, <span class="t-green">GREEN = MISS</span>.</li>
+        <li>Sink the whole enemy fleet to win the round.</li>
+        <li>Keep both screens awake. If a device sleeps, the link can drop.</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="screen-lobby" class="screen" hidden>
+    <h2>WAITING FOR<br>PLAYER 2</h2>
+    <div class="radar" aria-hidden="true"></div>
+    <p class="small">ROOM CODE</p>
+    <div id="room-code" class="code">-----</div>
+    <button id="share-btn" class="btn btn-primary" type="button">SHARE INVITE LINK</button>
+    <p id="share-msg" class="msg"></p>
+    <p class="small muted">On the other device, open this page and enter the code, or open the invite link.</p>
+    <button id="cancel-btn" class="btn btn-small" type="button">CANCEL</button>
+  </section>
+
+  <!-- PLACEMENT -->
+  <section id="screen-place" class="screen" hidden>
+    <h2>DEPLOY YOUR FLEET</h2>
+    <p id="place-vs" class="small muted"></p>
+    <div class="place-layout">
+      <div class="board" id="place-board"></div>
+      <div class="panel dock-panel">
+        <p id="place-hint" class="small hint"></p>
+        <div id="dock" class="dock"></div>
+        <div class="btn-row">
+          <button id="rotate-btn" class="btn btn-small" type="button">ROTATE</button>
+          <button id="random-btn" class="btn btn-small" type="button">RANDOM</button>
+          <button id="clear-btn" class="btn btn-small" type="button">CLEAR</button>
+        </div>
+        <button id="ready-btn" class="btn btn-primary" type="button" disabled>READY!</button>
+        <p id="ready-msg" class="msg" role="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTLE -->
+  <section id="screen-battle" class="screen" hidden>
+    <div class="scoreboard">
+      <div class="score me" id="score-me"></div>
+      <div class="vs">VS</div>
+      <div class="score opp" id="score-opp"></div>
+    </div>
+    <div id="turn-banner" class="turn-banner" role="status"></div>
+    <div class="battle-layout">
+      <div class="board-block">
+        <h3>ENEMY WATERS</h3>
+        <div class="board" id="target-board"></div>
+        <div class="fleet-status" id="enemy-fleet"></div>
+      </div>
+      <div class="board-block">
+        <h3>YOUR FLEET</h3>
+        <div class="board small readonly" id="own-board"></div>
+        <div class="fleet-status" id="my-fleet"></div>
+      </div>
+    </div>
+    <ul id="log" class="log" aria-live="polite"></ul>
+  </section>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel modal" role="dialog" aria-modal="true" aria-labelledby="ov-title">
+      <h2 id="ov-title"></h2>
+      <div id="ov-body"></div>
+      <div class="btn-row" id="ov-actions"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
