@@ -1,0 +1,53 @@
+.title-art .sprite { width: 120px; }
+
+.four-board {
+  --w: min(94vw, 560px);
+  width: var(--w);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding: 6px;
+  background: var(--purple);
+  border: 4px solid var(--ink);
+  box-shadow: 0 0 0 4px #000, 8px 8px 0 4px #000, inset 0 -6px 0 #5a1c9c;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.col {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  padding: 0; margin: 0; border: 0; border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.col:disabled { cursor: default; }
+.board-live .col:not(:disabled):hover, .board-live .col:not(:disabled):focus-visible { background: rgba(255, 255, 255, .12); outline: none; }
+.slot { aspect-ratio: 1; position: relative; padding: 9%; }
+.hole {
+  display: block;
+  width: 100%; height: 100%;
+  background: #120c3a;
+  /* chunky pixel circle */
+  clip-path: polygon(30% 0, 70% 0, 70% 10%, 85% 10%, 85% 15%, 90% 15%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 85%, 85% 85%, 85% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 15% 90%, 15% 85%, 10% 85%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 15%, 15% 15%, 15% 10%, 30% 10%);
+  box-shadow: inset 4px 4px 0 #000;
+}
+.slot.p1 .hole, .slot.p2 .hole {
+  background: var(--pc);
+  box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .3), inset 5px 5px 0 rgba(255, 255, 255, .45);
+}
+.slot.drop .hole { animation: drop var(--t, .3s) steps(6) both; }
+@keyframes drop { from { transform: translateY(calc(var(--fall) * -112%)); } }
+.slot.win .hole { animation: winflash .5s steps(1) infinite; }
+@keyframes winflash { 50% { background: var(--yellow); } }
+.slot.ghost .hole { background: color-mix(in srgb, var(--pc) 35%, #120c3a); }
+
+#draws { min-height: 1.7em; }
+
+@media (min-width: 900px) and (min-height: 800px) {
+  .four-board { --w: 620px; }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .four-board { --w: min(94vw, 70vh); }
+}

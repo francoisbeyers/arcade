@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Battleships</title>
+  <meta name="description" content="Retro Battleships for kids. Play the computer, take turns on one device, or play a friend on another device.">
+  <meta name="theme-color" content="#0b0d2e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arcade">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/battleships.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <a id="back-link" class="btn btn-small" href="./">&lt; ARCADE</a>
+    <span class="logo">BATTLESHIPS</span>
+    <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
+  </header>
+
+  <!-- TITLE -->
+  <section id="screen-title" class="screen">
+    <h1 class="title mid">BATTLE<br>SHIPS</h1>
+    <svg class="ship-art" viewBox="0 0 64 26" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="29" y="1" width="2" height="6" fill="#e8e8e8"/>
+      <rect x="31" y="1" width="4" height="2" fill="#e8281c"/>
+      <rect x="25" y="6" width="10" height="4" fill="#b4b4b4"/>
+      <rect x="27" y="7" width="2" height="1" fill="#3cbcfc"/>
+      <rect x="31" y="7" width="2" height="1" fill="#3cbcfc"/>
+      <rect x="20" y="10" width="22" height="4" fill="#9c9c9c"/>
+      <rect x="11" y="11" width="7" height="3" fill="#b4b4b4"/>
+      <rect x="6" y="11" width="5" height="1" fill="#5c5c5c"/>
+      <rect x="44" y="11" width="7" height="3" fill="#b4b4b4"/>
+      <rect x="51" y="11" width="5" height="1" fill="#5c5c5c"/>
+      <rect x="2" y="14" width="60" height="2" fill="#e8e8e8"/>
+      <rect x="4" y="16" width="56" height="2" fill="#9c9c9c"/>
+      <rect x="6" y="18" width="52" height="2" fill="#5c5c5c"/>
+      <g class="waves">
+        <rect x="0" y="20" width="64" height="6" fill="#2c48d8"/>
+        <rect x="2" y="20" width="6" height="1" fill="#fcfcfc"/>
+        <rect x="18" y="21" width="8" height="1" fill="#3cbcfc"/>
+        <rect x="34" y="20" width="6" height="1" fill="#fcfcfc"/>
+        <rect x="50" y="21" width="8" height="1" fill="#3cbcfc"/>
+        <rect x="10" y="23" width="6" height="1" fill="#3cbcfc"/>
+        <rect x="42" y="24" width="6" height="1" fill="#3cbcfc"/>
+      </g>
+    </svg>
+
+    <div class="option-group">
+      <span class="field-label">SEA SIZE</span>
+      <div id="board-choice"></div>
+    </div>
+    <div id="modes"></div>
+
+    <details class="panel how">
+      <summary>HOW TO PLAY</summary>
+      <ol>
+        <li>Hide your ships: tap a ship, then tap the sea. TURN spins it. Or tap MIX UP to place them all.</li>
+        <li>Take turns firing at the enemy sea.</li>
+        <li><span class="t-red">RED = HIT</span>. <span class="t-green">GREEN = MISS</span>.</li>
+        <li>Sink every enemy ship to win!</li>
+        <li>QUICK uses a smaller sea with 4 ships for shorter games. BIG is the classic 10 by 10 with 5 ships.</li>
+        <li>2 PLAYERS on one device: pass it over when it says so, and no peeking!</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- PLACEMENT -->
+  <section id="screen-place" class="screen" hidden>
+    <h2 id="place-title"></h2>
+    <p id="place-vs" class="small muted"></p>
+    <div class="place-layout">
+      <div class="board" id="place-board"></div>
+      <div class="panel dock-panel">
+        <p id="place-hint" class="small hint"></p>
+        <div id="dock" class="dock"></div>
+        <div class="btn-row">
+          <button id="rotate-btn" class="btn btn-small" type="button">TURN</button>
+          <button id="random-btn" class="btn btn-small btn-purple" type="button">MIX UP</button>
+          <button id="clear-btn" class="btn btn-small" type="button">CLEAR</button>
+        </div>
+        <button id="ready-btn" class="btn btn-primary" type="button" disabled>READY!</button>
+        <p id="ready-msg" class="msg" role="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTLE -->
+  <section id="screen-battle" class="screen" hidden>
+    <div class="scorebar">
+      <div class="pscore" id="score-me"></div>
+      <div class="vs">VS</div>
+      <div class="pscore right" id="score-opp"></div>
+    </div>
+    <div id="turn-banner" class="turn-banner" role="status"></div>
+    <div class="battle-layout">
+      <div class="board-block">
+        <h3>ENEMY SEA - TAP TO FIRE</h3>
+        <div class="board" id="target-board"></div>
+        <div class="fleet-status" id="enemy-fleet"></div>
+      </div>
+      <div class="board-block">
+        <h3>YOUR SHIPS</h3>
+        <div class="board small readonly" id="own-board"></div>
+        <div class="fleet-status" id="my-fleet"></div>
+      </div>
+    </div>
+    <ul id="log" class="log" aria-live="polite"></ul>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/arcade.js"></script>
+<script src="js/battleships.js"></script>
+</body>
+</html>

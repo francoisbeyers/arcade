@@ -3,152 +3,118 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Battleships</title>
-  <meta name="description" content="Retro two-player Battleships. Play against a friend on another device, no sign-up.">
+  <title>Pixel Arcade</title>
+  <meta name="description" content="Retro games for kids: Battleships, Four in a Row and Memory Pairs. Play on one device or two, no sign-up.">
   <meta name="theme-color" content="#0b0d2e">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%232c48d8'/%3E%3Crect x='2' y='8' width='12' height='3' fill='%23b4b4b4'/%3E%3Crect x='6' y='5' width='4' height='3' fill='%23b4b4b4'/%3E%3Crect x='7' y='2' width='1' height='3' fill='%23fcd800'/%3E%3Crect x='3' y='11' width='10' height='1' fill='%235c5c5c'/%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arcade">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/arcade.css">
+  <style>
+    .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; width: 100%; max-width: 940px; }
+    .game-card {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      padding: 22px 16px 20px;
+      background: var(--bg2); color: #fff; text-decoration: none;
+      border: 4px solid var(--ink);
+      box-shadow: 0 0 0 4px #000, 8px 8px 0 4px #000;
+    }
+    .game-card:hover, .game-card:focus-visible { border-color: var(--yellow); outline: none; }
+    .game-card:active { transform: translate(4px, 4px); box-shadow: 0 0 0 4px #000, 4px 4px 0 4px #000; }
+    .game-card .art { width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #2a3070; }
+    .game-card .art .sprite { width: 88px; }
+    .game-card .name { font-size: 16px; color: var(--yellow); text-shadow: 2px 2px 0 #000; line-height: 1.5; }
+    .game-card .sub { font-size: 10px; color: var(--muted); }
+    .game-card .play { font-size: 11px; color: #000; background: var(--green); padding: 8px 14px; border: 3px solid #000; }
+    .install .sprite { width: 40px; }
+    .install p { margin: 0; font-size: 10px; line-height: 2; }
+    .install-head { display: flex; align-items: center; gap: 14px; }
+    .foot { font-size: 9px; color: var(--muted); max-width: 520px; line-height: 2; }
+  </style>
 </head>
 <body>
 <div id="app">
   <header class="topbar">
-    <span class="logo">BATTLESHIPS</span>
+    <span class="logo">PIXEL ARCADE</span>
     <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
   </header>
 
-  <!-- TITLE -->
-  <section id="screen-title" class="screen">
-    <h1 class="title">BATTLE<br>SHIPS</h1>
-    <svg class="ship-art" viewBox="0 0 64 26" shape-rendering="crispEdges" aria-hidden="true">
-      <rect x="29" y="1" width="2" height="6" fill="#e8e8e8"/>
-      <rect x="31" y="1" width="4" height="2" fill="#e8281c"/>
-      <rect x="25" y="6" width="10" height="4" fill="#b4b4b4"/>
-      <rect x="27" y="7" width="2" height="1" fill="#3cbcfc"/>
-      <rect x="31" y="7" width="2" height="1" fill="#3cbcfc"/>
-      <rect x="20" y="10" width="22" height="4" fill="#9c9c9c"/>
-      <rect x="11" y="11" width="7" height="3" fill="#b4b4b4"/>
-      <rect x="6" y="11" width="5" height="1" fill="#5c5c5c"/>
-      <rect x="44" y="11" width="7" height="3" fill="#b4b4b4"/>
-      <rect x="51" y="11" width="5" height="1" fill="#5c5c5c"/>
-      <rect x="2" y="14" width="60" height="2" fill="#e8e8e8"/>
-      <rect x="4" y="16" width="56" height="2" fill="#9c9c9c"/>
-      <rect x="6" y="18" width="52" height="2" fill="#5c5c5c"/>
-      <g class="waves">
-        <rect x="0" y="20" width="64" height="6" fill="#2c48d8"/>
-        <rect x="2" y="20" width="6" height="1" fill="#fcfcfc"/>
-        <rect x="18" y="21" width="8" height="1" fill="#3cbcfc"/>
-        <rect x="34" y="20" width="6" height="1" fill="#fcfcfc"/>
-        <rect x="50" y="21" width="8" height="1" fill="#3cbcfc"/>
-        <rect x="10" y="23" width="6" height="1" fill="#3cbcfc"/>
-        <rect x="42" y="24" width="6" height="1" fill="#3cbcfc"/>
-      </g>
-    </svg>
-    <p class="blink press">PRESS START</p>
+  <main class="screen">
+    <h1 class="title">PIXEL<br>ARCADE</h1>
+    <p class="blink">PICK A GAME!</p>
 
-    <div class="panel">
-      <label>CAPTAIN NAME
-        <input id="name-input" maxlength="10" autocomplete="off" spellcheck="false" placeholder="PLAYER">
-      </label>
-      <button id="host-btn" class="btn btn-primary" type="button">NEW GAME</button>
-      <div class="or">- OR -</div>
-      <label>ROOM CODE
-        <input id="code-input" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCDE">
-      </label>
-      <button id="join-btn" class="btn" type="button">JOIN GAME</button>
-      <div class="or">- OR -</div>
-      <span class="field-label">VS COMPUTER</span>
-      <div class="level-row" role="radiogroup" aria-label="Computer difficulty">
-        <button class="level" type="button" role="radio" data-level="easy">EASY</button>
-        <button class="level" type="button" role="radio" data-level="normal">NORMAL</button>
-        <button class="level" type="button" role="radio" data-level="hard">HARD</button>
-      </div>
-      <button id="cpu-btn" class="btn btn-cpu" type="button">1 PLAYER GAME</button>
-      <p id="title-msg" class="msg" role="status"></p>
-    </div>
+    <nav class="games" aria-label="Games">
+      <a class="game-card" href="battleships.html">
+        <span class="art" data-sprite="ship"></span>
+        <span class="name">BATTLESHIPS</span>
+        <span class="sub">HIDE YOUR SHIPS. SINK THEIRS!</span>
+        <span class="play">PLAY</span>
+      </a>
+      <a class="game-card" href="four.html">
+        <span class="art" data-sprite="four"></span>
+        <span class="name">FOUR IN A ROW</span>
+        <span class="sub">GET 4 IN A LINE TO WIN</span>
+        <span class="play">PLAY</span>
+      </a>
+      <a class="game-card" href="memory.html">
+        <span class="art" data-sprite="cards"></span>
+        <span class="name">MEMORY PAIRS</span>
+        <span class="sub">FIND ALL THE MATCHING PAIRS</span>
+        <span class="play">PLAY</span>
+      </a>
+    </nav>
 
-    <details class="panel how">
-      <summary>HOW TO PLAY</summary>
-      <ol>
-        <li>One player taps NEW GAME and shares the room code.</li>
-        <li>On the other device, enter the code and tap JOIN GAME.</li>
-        <li>Place your 5 ships: tap a ship, then tap the grid. ROTATE turns it. Tap a placed ship to move it.</li>
-        <li>Take turns firing at enemy waters. <span class="t-red">RED = HIT</span>, <span class="t-green">GREEN = MISS</span>.</li>
-        <li>Sink the whole enemy fleet to win the round.</li>
-        <li>Keep both screens awake. If a device sleeps, the link can drop.</li>
-        <li>No one to play? Pick a level and tap 1 PLAYER GAME to take on the computer. EASY fires at random, NORMAL hunts down ships it has hit, HARD works out where your ships are most likely to be.</li>
-      </ol>
-    </details>
-  </section>
+    <section class="panel install" id="install" hidden>
+      <div class="install-head"><span data-sprite="phones"></span><h2>PUT IT ON YOUR HOME SCREEN</h2></div>
+      <p id="install-text"></p>
+      <button id="install-btn" class="btn btn-primary" type="button" hidden>INSTALL</button>
+    </section>
 
-  <!-- LOBBY -->
-  <section id="screen-lobby" class="screen" hidden>
-    <h2>WAITING FOR<br>PLAYER 2</h2>
-    <div class="radar" aria-hidden="true"></div>
-    <p class="small">ROOM CODE</p>
-    <div id="room-code" class="code">-----</div>
-    <button id="share-btn" class="btn btn-primary" type="button">SHARE INVITE LINK</button>
-    <p id="share-msg" class="msg"></p>
-    <p class="small muted">On the other device, open this page and enter the code, or open the invite link.</p>
-    <button id="cancel-btn" class="btn btn-small" type="button">CANCEL</button>
-  </section>
-
-  <!-- PLACEMENT -->
-  <section id="screen-place" class="screen" hidden>
-    <h2>DEPLOY YOUR FLEET</h2>
-    <p id="place-vs" class="small muted"></p>
-    <div class="place-layout">
-      <div class="board" id="place-board"></div>
-      <div class="panel dock-panel">
-        <p id="place-hint" class="small hint"></p>
-        <div id="dock" class="dock"></div>
-        <div class="btn-row">
-          <button id="rotate-btn" class="btn btn-small" type="button">ROTATE</button>
-          <button id="random-btn" class="btn btn-small" type="button">RANDOM</button>
-          <button id="clear-btn" class="btn btn-small" type="button">CLEAR</button>
-        </div>
-        <button id="ready-btn" class="btn btn-primary" type="button" disabled>READY!</button>
-        <p id="ready-msg" class="msg" role="status"></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- BATTLE -->
-  <section id="screen-battle" class="screen" hidden>
-    <div class="scoreboard">
-      <div class="score me" id="score-me"></div>
-      <div class="vs">VS</div>
-      <div class="score opp" id="score-opp"></div>
-    </div>
-    <div id="turn-banner" class="turn-banner" role="status"></div>
-    <div class="battle-layout">
-      <div class="board-block">
-        <h3>ENEMY WATERS</h3>
-        <div class="board" id="target-board"></div>
-        <div class="fleet-status" id="enemy-fleet"></div>
-      </div>
-      <div class="board-block">
-        <h3>YOUR FLEET</h3>
-        <div class="board small readonly" id="own-board"></div>
-        <div class="fleet-status" id="my-fleet"></div>
-      </div>
-    </div>
-    <ul id="log" class="log" aria-live="polite"></ul>
-  </section>
-
-  <div id="overlay" class="overlay" hidden>
-    <div class="panel modal" role="dialog" aria-modal="true" aria-labelledby="ov-title">
-      <h2 id="ov-title"></h2>
-      <div id="ov-body"></div>
-      <div class="btn-row" id="ov-actions"></div>
-    </div>
-  </div>
-  <div id="toast" class="toast" role="status"></div>
+    <p class="foot">Once it's on your home screen, 1-player games and 2 players on one device work without internet. Games across 2 devices need a connection on both.</p>
+  </main>
 </div>
+<script src="js/arcade.js"></script>
+<script>
+  (() => {
+    const A = window.Arcade;
+    A.initHeader();
+    for (const el of document.querySelectorAll('[data-sprite]')) el.innerHTML = A.sprite(el.dataset.sprite);
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js"></script>
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const box = document.getElementById('install');
+    const text = document.getElementById('install-text');
+    const btn = document.getElementById('install-btn');
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!standalone) {
+      box.hidden = false;
+      text.textContent = ios
+        ? 'IN SAFARI, TAP THE SHARE BUTTON, THEN "ADD TO HOME SCREEN". IT WILL OPEN LIKE AN APP.'
+        : 'OPEN THE BROWSER MENU AND CHOOSE "ADD TO HOME SCREEN" OR "INSTALL APP".';
+    }
+    let deferred = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferred = e;
+      box.hidden = false;
+      btn.hidden = false;
+      text.textContent = 'TAP INSTALL TO ADD THE ARCADE TO THIS DEVICE. IT WILL OPEN LIKE AN APP.';
+    });
+    btn.addEventListener('click', async () => {
+      if (!deferred) return;
+      deferred.prompt();
+      await deferred.userChoice.catch(() => null);
+      deferred = null;
+      btn.hidden = true;
+    });
+    window.addEventListener('appinstalled', () => { box.hidden = true; });
+  })();
+</script>
 </body>
 </html>

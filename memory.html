@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Memory Pairs</title>
+  <meta name="description" content="Turn over two cards and find the matching pairs. Play alone, take turns on one device, or play a friend on another device.">
+  <meta name="theme-color" content="#0b0d2e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arcade">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/memory.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <a id="back-link" class="btn btn-small" href="./">&lt; ARCADE</a>
+    <span class="logo">MEMORY PAIRS</span>
+    <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
+  </header>
+
+  <section id="screen-title" class="screen">
+    <h1 class="title mid">MEMORY<br>PAIRS</h1>
+    <div class="title-art" id="title-art"></div>
+    <div class="option-group">
+      <span class="field-label">HOW MANY CARDS?</span>
+      <div id="size-choice"></div>
+    </div>
+    <div id="modes"></div>
+    <details class="panel how">
+      <summary>HOW TO PLAY</summary>
+      <ol>
+        <li>Tap two cards to turn them over.</li>
+        <li>Same picture? You keep the pair and go again!</li>
+        <li>Different? They turn back over. Try to remember where they were!</li>
+        <li>1 PLAYER: find all the pairs in as few goes as you can.</li>
+        <li>2 PLAYERS: whoever finds the most pairs wins.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section id="screen-game" class="screen" hidden>
+    <div class="scorebar">
+      <div class="pscore" id="score-1"></div>
+      <div class="vs" id="score-mid">VS</div>
+      <div class="pscore right" id="score-2"></div>
+    </div>
+    <div id="turn-banner" class="turn-banner" role="status"></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section id="screen-wait" class="screen" hidden>
+    <h2>GETTING THE CARDS READY...</h2>
+    <div class="radar"></div>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/arcade.js"></script>
+<script src="js/memory.js"></script>
+</body>
+</html>

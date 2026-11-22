@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Four in a Row</title>
+  <meta name="description" content="Drop your counters and get four in a line. Play the computer, take turns on one device, or play a friend on another device.">
+  <meta name="theme-color" content="#0b0d2e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arcade">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/four.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <a id="back-link" class="btn btn-small" href="./">&lt; ARCADE</a>
+    <span class="logo">FOUR IN A ROW</span>
+    <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
+  </header>
+
+  <section id="screen-title" class="screen">
+    <h1 class="title mid">FOUR<br>IN A ROW</h1>
+    <div class="title-art" id="title-art"></div>
+    <div id="modes"></div>
+    <details class="panel how">
+      <summary>HOW TO PLAY</summary>
+      <ol>
+        <li>Take turns dropping a counter into a column. Tap anywhere in the column.</li>
+        <li>Get 4 of your colour in a line to win: across, up and down, or slanted.</li>
+        <li>Block your friend when they have 3 in a line!</li>
+        <li>If the board fills up with no winner, it's a draw.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section id="screen-game" class="screen" hidden>
+    <div class="scorebar">
+      <div class="pscore" id="score-1"></div>
+      <div class="vs">VS</div>
+      <div class="pscore right" id="score-2"></div>
+    </div>
+    <div id="turn-banner" class="turn-banner" role="status"></div>
+    <div class="four-board" id="board" role="grid" aria-label="Game board"></div>
+    <p id="draws" class="small muted"></p>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/arcade.js"></script>
+<script src="js/four.js"></script>
+</body>
+</html>

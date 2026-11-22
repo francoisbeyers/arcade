@@ -1,34 +1,38 @@
-# Battleships
+# Pixel Arcade
 
-A retro 8-bit, two-player Battleships game that runs in the browser. Each player uses their own device; there are no accounts and nothing to install.
+Retro 8-bit games for kids, in the browser. No accounts, nothing to install, and it can be added to a phone or tablet home screen so it opens like an app.
 
-## How it works
+Live at https://francoisbeyers.github.io/battleships/
 
-- One player taps **NEW GAME** and gets a 5-character room code (or shares an invite link).
-- The other player enters the code and taps **JOIN GAME**.
-- The two browsers connect directly to each other over WebRTC using [PeerJS](https://peerjs.com/). PeerJS's free public server is only used to introduce the two devices; the game moves go device to device.
+## Games
 
-## 1-player mode
+| Game | 1 player | 2 players, 1 device | 2 devices |
+|---|---|---|---|
+| **Battleships** | vs computer (Easy / Normal / Hard) | yes, with a "pass the device, no peeking" screen | yes |
+| **Four in a Row** | vs computer (Easy / Normal / Hard) | yes | yes |
+| **Memory Pairs** | beat your best score | yes | yes |
 
-Pick a level and tap **1 PLAYER GAME** to play the computer on one device (no connection needed once the page has loaded):
+- Players are colours (BLUE and PINK), so there's nothing to type.
+- Battleships has a **Quick** 8×8 sea with 4 ships for shorter games, or the classic **Big** 10×10 with 5 ships.
+- Memory Pairs comes in 12, 16 or 24 cards.
 
-- **Easy:** fires at random (about 95 shots to sink your fleet).
-- **Normal:** fires at random until it hits, then hunts that ship down (about 65 shots).
-- **Hard:** works out where your remaining ships could fit and fires at the likeliest square (about 45 shots).
+## Playing on two devices
 
-## Rules
+One player taps **2 DEVICES → START A ROOM** and gets a 4-digit room number. The other player opens the same game, taps **2 DEVICES**, types the number and taps **JOIN ROOM** (or opens the invite link). The browsers connect directly using [PeerJS](https://peerjs.com/); its free public server only introduces the two devices.
 
-- 10×10 grid, classic fleet: Carrier (5), Battleship (4), Cruiser (3), Submarine (3), Destroyer (2).
-- Ships may touch but not overlap.
-- Players strictly alternate shots. The host fires first in round 1, then the first shot alternates each round.
-- Red = hit, green = miss. Sinking a ship announces it to both players.
-- Rematches keep a running win tally until someone leaves.
+## Offline
+
+A service worker (`sw.js`) saves the whole arcade on the first visit. After that, 1-player games and 2 players on one device work with no signal. Two-device games need internet on both devices.
+
+When releasing changes, bump `VERSION` in `sw.js` so devices pick up the new files (they update on the next visit after that).
 
 ## Files
 
-- `index.html`: page structure
-- `style.css`: 8-bit look
-- `game.js`: game logic, networking and generated sound effects
+- `index.html`: arcade home page and install help
+- `battleships.html`, `four.html`, `memory.html`: one page per game
+- `css/arcade.css`, `js/arcade.js`: shared look, sounds, pixel sprites, mode picker, pass-the-device screen and two-device connection
+- `css/<game>.css`, `js/<game>.js`: each game's own rules and drawing
+- `sw.js`, `manifest.webmanifest`, `icons/`: offline cache and home-screen install
 
 ## Run locally
 
@@ -36,13 +40,9 @@ Pick a level and tap **1 PLAYER GAME** to play the computer on one device (no co
 python3 -m http.server 8642
 ```
 
-Then open http://localhost:8642 in two browser windows or on two devices on the same network.
-
-## Deploy to GitHub Pages
-
-Push this folder to a GitHub repository, then under **Settings → Pages** set the source to the `main` branch, root folder. The `.nojekyll` file stops GitHub from processing the files.
+Then open http://localhost:8642. The offline cache only switches on over https (the live site), so local testing always loads fresh files.
 
 ## Known limits
 
-- If a phone goes to sleep or the page is closed, the connection drops and that game ends. The game asks the browser to keep the screen awake during play where supported.
-- Some strict networks (certain corporate or mobile networks) can block peer-to-peer connections. PeerJS falls back to its public relay server, which usually gets round this.
+- In two-device games, if a screen goes to sleep or the page is closed, the link drops and that game ends. The games ask the browser to keep the screen on during play where supported.
+- Some strict networks can block device-to-device connections. PeerJS falls back to a relay server, which usually gets round this.
