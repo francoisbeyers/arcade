@@ -1,7 +1,7 @@
 /* Pixel Arcade offline cache.
    Serves saved copies first so the games open with no signal, and quietly
    refreshes them in the background when online. Bump VERSION on each release. */
-const VERSION = 'arcade-v3';
+const VERSION = 'arcade-v4';
 const LOCAL = [
   './', 'index.html', 'battleships.html', 'four.html', 'memory.html',
   'css/arcade.css', 'css/battleships.css', 'css/four.css', 'css/memory.css',
@@ -15,7 +15,8 @@ const CACHE_HOSTS = ['unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(VERSION);
-    await cache.addAll(LOCAL);
+    // cache: 'reload' skips the browser's 10-minute HTTP cache so a new version never saves old files.
+    await cache.addAll(LOCAL.map((u) => new Request(u, { cache: 'reload' })));
     try { await cache.add(new Request(PEERJS, { mode: 'cors' })); } catch (e) { /* online-only feature */ }
     try {
       const res = await fetch(FONT_CSS);
