@@ -1,7 +1,7 @@
 /* Pixel Arcade offline cache.
    Serves saved copies first so the games open with no signal, and quietly
    refreshes them in the background when online. Bump VERSION on each release. */
-const VERSION = 'arcade-v2';
+const VERSION = 'arcade-v3';
 const LOCAL = [
   './', 'index.html', 'battleships.html', 'four.html', 'memory.html',
   'css/arcade.css', 'css/battleships.css', 'css/four.css', 'css/memory.css',

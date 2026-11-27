@@ -3,8 +3,13 @@
 .four-board {
   --w: min(94vw, 560px);
   width: var(--w);
+  /* Explicit height (6 rows of square slots + padding and border) so every
+     browser, Safari included, draws all 6 rows inside the frame. */
+  height: calc((var(--w) - 20px) * 6 / 7 + 20px);
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: 100%;
   gap: 0;
   padding: 6px;
   background: var(--purple);
@@ -15,8 +20,10 @@
   touch-action: manipulation;
 }
 .col {
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
   padding: 0; margin: 0; border: 0; border-radius: 0;
   background: transparent;
   cursor: pointer;
@@ -24,10 +31,11 @@
 }
 .col:disabled { cursor: default; }
 .board-live .col:not(:disabled):hover, .board-live .col:not(:disabled):focus-visible { background: rgba(255, 255, 255, .12); outline: none; }
-.slot { aspect-ratio: 1; position: relative; padding: 9%; }
+.slot { flex: 1 1 0; min-height: 0; position: relative; }
 .hole {
   display: block;
-  width: 100%; height: 100%;
+  position: absolute;
+  inset: 9%;
   background: #120c3a;
   /* chunky pixel circle */
   clip-path: polygon(30% 0, 70% 0, 70% 10%, 85% 10%, 85% 15%, 90% 15%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 85%, 85% 85%, 85% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 15% 90%, 15% 85%, 10% 85%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 15%, 15% 15%, 15% 10%, 30% 10%);
@@ -38,7 +46,7 @@
   box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .3), inset 5px 5px 0 rgba(255, 255, 255, .45);
 }
 .slot.drop .hole { animation: drop var(--t, .3s) steps(6) both; }
-@keyframes drop { from { transform: translateY(calc(var(--fall) * -112%)); } }
+@keyframes drop { from { transform: translateY(calc(var(--fall) * -122%)); } }
 .slot.win .hole { animation: winflash .5s steps(1) infinite; }
 @keyframes winflash { 50% { background: var(--yellow); } }
 .slot.ghost .hole { background: color-mix(in srgb, var(--pc) 35%, #120c3a); }
