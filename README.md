@@ -11,10 +11,12 @@ Live at https://francoisbeyers.github.io/arcade/
 | **Battleships** | vs computer (Easy / Normal / Hard) | yes, with a "pass the device, no peeking" screen | yes |
 | **Four in a Row** | vs computer (Easy / Normal / Hard) | yes | yes |
 | **Memory Pairs** | beat your best score | yes | yes |
+| **Picture Bingo** | vs 1–3 computer players | – | yes, 2 to 8 players |
 
 - Players are colours (BLUE and PINK), so there's nothing to type.
 - Battleships has a **Quick** 8×8 sea with 4 ships for shorter games, or the classic **Big** 10×10 with 5 ships.
 - Memory Pairs comes in 12, 16 or 24 cards.
+- Picture Bingo: each player gets a 3×3 card of pictures with a free middle square. The host device calls pictures out loud; cover a line (or the whole card) and press BINGO. The host checks every claim against the pictures actually called.
 
 ## Playing on two devices
 
@@ -29,8 +31,8 @@ When releasing changes, bump `VERSION` in `sw.js` so devices pick up the new fil
 ## Files
 
 - `index.html`: arcade home page and install help
-- `battleships.html`, `four.html`, `memory.html`: one page per game
-- `css/arcade.css`, `js/arcade.js`: shared look, sounds, pixel sprites, mode picker, pass-the-device screen and two-device connection
+- `battleships.html`, `four.html`, `memory.html`, `bingo.html`: one page per game
+- `css/arcade.css`, `js/arcade.js`: shared look, sounds, pixel sprites, picture guides, mode picker, pass-the-device screen, two-device link (`Net`) and rooms for up to 8 devices (`Room`)
 - `css/<game>.css`, `js/<game>.js`: each game's own rules and drawing
 - `sw.js`, `manifest.webmanifest`, `icons/`: offline cache and home-screen install
 

@@ -1,7 +1,7 @@
 {
   "name": "Pixel Arcade",
   "short_name": "Arcade",
-  "description": "Retro games for kids: Battleships, Four in a Row and Memory Pairs.",
+  "description": "Retro games for kids: Battleships, Four in a Row, Memory Pairs and Picture Bingo.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

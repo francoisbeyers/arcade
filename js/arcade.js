@@ -112,7 +112,21 @@
     rocket: ['...ss...', '..ssss..', '..sbbs..', '..sbbs..', '..ssss..', '.rssssr.', 'rr.oo.rr', '...yy...'],
     boat: ['...r....', '...rr...', '...rrr..', '...rrrr.', '...n....', 'nnnnnnnn', '.nnnnnn.', 'bbbbbbbb'],
     flower: ['..P..P..', '...PP...', '.PPyyPP.', '..PyyP..', '...PP...', '..P.GP..', '..GGG...', '....G...'],
+    // more pictures (bingo)
+    sun: ['...yy...', '.y.yy.y.', '..yyyy..', 'yyyyyyyy', 'yyyyyyyy', '..yyyy..', '.y.yy.y.', '...yy...'],
+    moon: ['..yyyy..', '.yyy....', 'yyy.....', 'yyy.....', 'yyy.....', 'yyy.....', '.yyy....', '..yyyy..'],
+    tree: ['...GG...', '..GGGG..', '.GGgGGG.', 'GGGGGgGG', '.GGGGGG.', '...nn...', '...nn...', '..nnnn..'],
+    car: ['........', '..rrrr..', '.rbbbbr.', 'rrrrrrrr', 'rrrrrrrr', '.kk..kk.', '.kk..kk.', '........'],
+    house: ['...RR...', '..RRRR..', '.RRRRRR.', 'RRRRRRRR', '.oooooo.', '.oboono.', '.oooono.', '.oooono.'],
+    ball: ['..rrbb..', '.rrrbbb.', 'rrrrbbbb', 'rrrrbbbb', 'yyyygggg', 'yyyygggg', '.yyyggg.', '..yygg..'],
+    bee: ['.bb..bb.', '.bb..bb.', '..yyyy..', '.ykyyky.', '.kkkkkk.', '.yyyyyy.', '.kkkkkk.', '..yyyy..'],
+    mushroom: ['..rrrr..', '.rwrrwr.', 'rrrrrrrr', 'rwrrrrwr', '..cccc..', '..cccc..', '..cccc..', '...cc...'],
+    banana: ['......n.', '.....yy.', '....yyy.', '...yyy..', '..yyy...', 'yyyy....', '.yy.....', '........'],
+    carrot: ['...G.G..', '....GG..', '...ooo..', '...ooo..', '..ooo...', '..oo....', '.oo.....', '.o......'],
+    icecream: ['...r....', '..pppp..', '.pppppp.', '.pwpppp.', '.pppppp.', '..oooo..', '...oo...', '...oo...'],
+    dog: ['nn....nn', 'nnnnnnnn', '.nknnkn.', '.nnnnnn.', '.nnkknn.', '..nppn..', '..nnnn..', '........'],
     // menu icons
+    bingo: ['wwwwwww', 'wrwbwgw', 'wwwwwww', 'wywPwrw', 'wwwwwww', 'wbwrwyw', 'wwwwwww'],
     ship: ['....r...', '....s...', '...sss..', '.ssssss.', 'wwwwwwww', '.SSSSSS.', 'bbbbbbbb', 'b.bb.bb.'],
     four: ['PPPPPPP', 'PkPkPbP', 'PPPPPPP', 'PkPpPbP', 'PPPPPPP', 'PpPbPbP', 'PPPPPPP'],
     cards: ['PPPP.wwww', 'PyyP.wppw', 'PyyP.wppw', 'PyyP.wppw', 'PPPP.wwww'],
@@ -124,6 +138,18 @@
     trophy: ['yyyyyyy', 'yyyyyyy', '.yyyyy.', '..yyy..', '...y...', '..yyy..', '.nnnnn.'],
   };
   const CARD_SPRITES = ['apple', 'cherry', 'star', 'heart', 'fish', 'crab', 'duck', 'frog', 'cat', 'rocket', 'boat', 'flower'];
+  const PIC_WORDS = {
+    apple: 'APPLE', cherry: 'CHERRIES', star: 'STAR', heart: 'HEART', fish: 'FISH', crab: 'CRAB', duck: 'DUCK', frog: 'FROG',
+    cat: 'CAT', rocket: 'ROCKET', boat: 'BOAT', flower: 'FLOWER', sun: 'SUN', moon: 'MOON', tree: 'TREE', car: 'CAR',
+    house: 'HOUSE', ball: 'BALL', bee: 'BEE', mushroom: 'MUSHROOM', banana: 'BANANA', carrot: 'CARROT', icecream: 'ICE CREAM', dog: 'DOG',
+  };
+  const BINGO_PICS = Object.keys(PIC_WORDS);
+  // Player colours for games with more than two players.
+  const COLOURS = [
+    { name: 'BLUE', color: '#3cbcfc' }, { name: 'PINK', color: '#f878f8' }, { name: 'GREEN', color: '#58d854' },
+    { name: 'YELLOW', color: '#fcd800' }, { name: 'ORANGE', color: '#f87800' }, { name: 'PURPLE', color: '#b878f8' },
+    { name: 'RED', color: '#f83800' }, { name: 'WHITE', color: '#fcfcfc' },
+  ];
   const spriteCache = {};
   function sprite(name, cls = '') {
     if (!spriteCache[name]) {
@@ -210,6 +236,7 @@
   function choiceRow(el, { key, options, def, onChange }) {
     let value = store.get(key, def);
     if (!options.some((o) => o.value === value)) value = def;
+    el.classList.add('choice-row');
     el.setAttribute('role', 'radiogroup');
     el.style.setProperty('--cols', options.length);
     el.innerHTML = '';
@@ -356,6 +383,102 @@
     },
   };
   window.addEventListener('pagehide', (e) => { if (!e.persisted && Net.open) Net.send({ type: '_leave' }); });
+
+  function netErrorMsg(err) {
+    const t = err && err.type;
+    if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)) return "CAN'T REACH THE INTERNET. GAMES ON SEVERAL DEVICES NEED A CONNECTION.";
+    if (t === 'browser-incompatible' || t === 'webrtc') return "THIS BROWSER CAN'T LINK DEVICES. TRY CHROME OR SAFARI.";
+    return 'CONNECTION PROBLEM. PLEASE TRY AGAIN.';
+  }
+
+  /* ---------- rooms for up to 8 devices (one host, the rest join) ---------- */
+  const Room = {
+    peer: null, isHost: false, conns: new Map(), conn: null, open: false, h: {}, timer: null, max: 8, locked: false,
+    host(game, max, h) {
+      this.close();
+      Object.assign(this, { h, isHost: true, max, locked: false });
+      const code = String(1000 + rand(9000));
+      const peer = new window.Peer(Net.id(game, code), { debug: 1 });
+      this.peer = peer;
+      peer.on('open', () => { if (this.peer === peer && this.h.onRoom) this.h.onRoom(code); });
+      peer.on('connection', (c) => {
+        c.on('open', () => {
+          if (this.peer !== peer) return;
+          if (this.locked || this.conns.size >= this.max - 1) {
+            try { c.send({ type: this.locked ? '_busy' : '_full' }); } catch (e) { /* ignore */ }
+            setTimeout(() => c.close(), 400);
+            return;
+          }
+          this.conns.set(c.peer, c);
+          if (this.h.onJoin) this.h.onJoin(c.peer);
+        });
+        c.on('data', (m) => {
+          if (this.conns.get(c.peer) !== c || !m || typeof m !== 'object') return;
+          if (m.type === '_leave') { this.drop(c.peer); return; }
+          if (this.h.onData) this.h.onData(m, c.peer);
+        });
+        c.on('close', () => { if (this.conns.get(c.peer) === c) this.drop(c.peer); });
+        c.on('error', (e) => console.warn('connection error', e));
+      });
+      peer.on('error', (err) => {
+        if (this.peer !== peer) return;
+        if (err.type === 'unavailable-id') { this.host(game, max, h); return; }
+        console.warn('peer error', err && err.type);
+        if (!this.conns.size) this.fail(netErrorMsg(err));
+      });
+      peer.on('disconnected', () => { if (this.peer === peer && !peer.destroyed) { try { peer.reconnect(); } catch (e) { /* ignore */ } } });
+    },
+    drop(id) {
+      const c = this.conns.get(id);
+      this.conns.delete(id);
+      try { if (c) c.close(); } catch (e) { /* ignore */ }
+      if (this.h.onLeave) this.h.onLeave(id);
+    },
+    join(game, code, h) {
+      this.close();
+      Object.assign(this, { h, isHost: false });
+      const peer = new window.Peer({ debug: 1 });
+      this.peer = peer;
+      peer.on('open', () => {
+        if (this.peer !== peer) return;
+        const c = peer.connect(Net.id(game, code), { reliable: true, serialization: 'json' });
+        this.conn = c;
+        c.on('open', () => { if (this.conn !== c) return; this.open = true; clearTimeout(this.timer); if (this.h.onConnect) this.h.onConnect(); });
+        c.on('data', (m) => {
+          if (this.conn !== c || !m || typeof m !== 'object') return;
+          if (m.type === '_full') { this.fail('THAT ROOM IS FULL.'); return; }
+          if (m.type === '_busy') { this.fail('THAT GAME HAS ALREADY STARTED. TRY AGAIN WHEN THIS ROUND ENDS.'); return; }
+          if (m.type === '_leave') { const hh = this.h; this.close(); if (hh.onClose) hh.onClose(true); return; }
+          if (this.h.onData) this.h.onData(m, 'host');
+        });
+        c.on('close', () => { if (this.conn !== c) return; const hh = this.h; this.close(); if (hh.onClose) hh.onClose(false); });
+        this.timer = setTimeout(() => { if (this.peer === peer && !this.open) this.fail("COULDN'T CONNECT. CHECK THE NUMBER AND TRY AGAIN."); }, 15000);
+      });
+      peer.on('error', (err) => {
+        if (this.peer !== peer) return;
+        if (err.type === 'peer-unavailable') this.fail('NO ROOM WITH THAT NUMBER. CHECK IT AND TRY AGAIN.');
+        else if (!this.open) this.fail(netErrorMsg(err));
+      });
+    },
+    send(m) {
+      if (this.isHost) { for (const c of this.conns.values()) if (c.open) { try { c.send(m); } catch (e) { /* ignore */ } } }
+      else if (this.conn && this.conn.open) { try { this.conn.send(m); } catch (e) { /* ignore */ } }
+    },
+    sendTo(id, m) { const c = this.conns.get(id); if (c && c.open) { try { c.send(m); } catch (e) { /* ignore */ } } },
+    lock(v) { this.locked = !!v; },
+    get active() { return !!(this.peer && (this.isHost ? true : this.open)); },
+    leave() { this.h = {}; this.send({ type: '_leave' }); setTimeout(() => this.close(), 150); },
+    close() {
+      clearTimeout(this.timer);
+      for (const c of this.conns.values()) { try { c.close(); } catch (e) { /* ignore */ } }
+      this.conns = new Map();
+      try { if (this.conn) this.conn.close(); } catch (e) { /* ignore */ }
+      try { if (this.peer) this.peer.destroy(); } catch (e) { /* ignore */ }
+      this.conn = null; this.peer = null; this.open = false;
+    },
+    fail(msg) { const hh = this.h; this.close(); if (hh.onError) hh.onError(msg); },
+  };
+  window.addEventListener('pagehide', (e) => { if (!e.persisted && Room.peer) Room.send({ type: '_leave' }); });
 
   function roomFromUrl() {
     const r = new URLSearchParams(location.search).get('room') || '';
@@ -538,7 +661,7 @@
   }
 
   window.Arcade = {
-    $, rand, esc, shuffle, store, Sound, PLAYERS, CPU, CARD_SPRITES, sprite,
+    $, rand, esc, shuffle, store, Sound, PLAYERS, CPU, CARD_SPRITES, PIC_WORDS, BINGO_PICS, COLOURS, sprite, Room, speak, stopSpeaking,
     toast, showOverlay, hideOverlay, overlayOpen, confirmBox, handover, choiceRow, modeMenu,
     keepAwake, releaseAwake, Net, online, roomFromUrl, clearRoomFromUrl, connectionLost,
     setGuard, initHeader, mini, miniCards, guide, guideOnce,

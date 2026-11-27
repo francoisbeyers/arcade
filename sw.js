@@ -1,11 +1,11 @@
 /* Pixel Arcade offline cache.
    Serves saved copies first so the games open with no signal, and quietly
    refreshes them in the background when online. Bump VERSION on each release. */
-const VERSION = 'arcade-v4';
+const VERSION = 'arcade-v5';
 const LOCAL = [
-  './', 'index.html', 'battleships.html', 'four.html', 'memory.html',
-  'css/arcade.css', 'css/battleships.css', 'css/four.css', 'css/memory.css',
-  'js/arcade.js', 'js/battleships.js', 'js/four.js', 'js/memory.js',
+  './', 'index.html', 'battleships.html', 'four.html', 'memory.html', 'bingo.html',
+  'css/arcade.css', 'css/battleships.css', 'css/four.css', 'css/memory.css', 'css/bingo.css',
+  'js/arcade.js', 'js/battleships.js', 'js/four.js', 'js/memory.js', 'js/bingo.js',
   'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/icon-maskable-512.png',
 ];
 const PEERJS = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Picture Bingo</title>
+  <meta name="description" content="Picture Bingo for 2 to 8 players, each on their own phone or tablet, or against the computer.">
+  <meta name="theme-color" content="#0b0d2e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arcade">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/bingo.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <a id="back-link" class="btn btn-small" href="./">&lt; ARCADE</a>
+    <span class="logo">PICTURE BINGO</span>
+    <button id="mute-btn" class="btn btn-small" type="button">SND ON</button>
+  </header>
+
+  <section id="screen-title" class="screen">
+    <h1 class="title mid">PICTURE<br>BINGO</h1>
+    <div class="title-art" id="title-art"></div>
+    <button id="how-btn" class="btn how-btn" type="button">? HOW TO PLAY</button>
+    <div class="option-group">
+      <span class="field-label">TO WIN, COVER...</span>
+      <div id="rule-choice"></div>
+    </div>
+    <div class="option-group">
+      <span class="field-label">CALLING SPEED</span>
+      <div id="speed-choice"></div>
+    </div>
+    <div class="mode-list">
+      <button type="button" class="mode-btn" id="friends-btn"><span data-sprite="phones"></span><span>PLAY WITH FRIENDS<small>2 TO 8 PLAYERS, EACH ON THEIR OWN PHONE OR TABLET</small></span></button>
+      <button type="button" class="mode-btn" id="cpu-btn"><span data-sprite="robot"></span><span>PLAY THE COMPUTER<small>YOU AGAINST COMPUTER PLAYERS. NO INTERNET NEEDED</small></span></button>
+      <div class="option-group">
+        <span class="field-label">HOW MANY COMPUTER PLAYERS?</span>
+        <div id="cpu-choice"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-game" class="screen" hidden>
+    <div id="players" class="players-row"></div>
+    <div class="bingo-layout">
+      <div class="caller-col">
+        <div class="caller">
+          <div class="caller-box" id="caller-pic"></div>
+          <div class="caller-text">
+            <div class="caller-word" id="caller-word"></div>
+            <div class="caller-count small muted" id="caller-count"></div>
+            <button id="pause-btn" class="btn btn-small" type="button" hidden>PAUSE</button>
+          </div>
+        </div>
+        <div class="called-strip" id="called-strip" aria-label="Pictures already called"></div>
+      </div>
+      <div class="card-col">
+        <div id="bingo-banner" class="turn-banner" role="status"></div>
+        <div class="bingo-card" id="card"></div>
+        <button id="bingo-btn" class="btn bingo-btn" type="button" disabled>BINGO!</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/arcade.js"></script>
+<script src="js/bingo.js"></script>
+</body>
+</html>
